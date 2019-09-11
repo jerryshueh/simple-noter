@@ -2,30 +2,46 @@
 <html>
     <head>
         <meta charset="utf-8">
+        <!-- Taken from https://gist.github.com/SimonPadbury/fc55c054c0480550c3be592111778763 -->
+        <link rel="stylesheet" href="./styles/stickystyle.css">
+        <link href="https://fonts.googleapis.com/css?family=Indie+Flower&display=swap" rel="stylesheet"> 
         <title>Simple Noter</title>
     </head>
 
     <body>
         <!-- This is a comment -->
         <h1>simple-note</h1>
-        <p><sub>To make notes, just type in the space below! (Tip: your note is saved every 3 seconds!)</sub></p>
+        <p><sub>To make notes, just type in the space below. Press CTRL + X to save!</sub></p>
+        <p><sub>
+            Font is Indie Flower, taken from Google Fonts.
+            <br>
+            Sticky note CSS is taken from Github user <a href="https://gist.github.com/SimonPadbury">SimonPadbury's</a> <a href="https://gist.github.com/SimonPadbury/fc55c054c0480550c3be592111778763">gist.</a>
+        </sub></p>
         <br>
         <div id="content"></div>
+
         <script src="https://unpkg.com/filer/dist/filer.min.js"></script>
+        <script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
+
         <script>
             const fs = new Filer.FileSystem();
-            var nString = "Welcome to simple-noter! Nothing is saved yet, so just type here!"; //init
+            var nString = "Nothing is saved yet, so just type here!"; //init
 
             var contentDiv = document.getElementById("content");
             var noteDiv = document.createElement("div");
             noteDiv.setAttribute("contenteditable", true);
             noteDiv.id = "note";
-            noteDiv.style.background = "#ffff88";
+            noteDiv.className = "sticky"
             contentDiv.appendChild(noteDiv);
-            
+
+            hotkeys.filter = function(event) {
+                var tagName = (event.target || event.srcElement).tagName;
+                return !(tagName.isContentEditable || tagName == "INPUT" || tagName == "SELECT" || tagName == "TEXTAREA");
+            }
+       
             window.addEventListener("DOMContentLoaded", (event) => {
                 console.log("DOM fully loaded and parsed");
-                fs.readFile("/note.txt", 'utf8', function(err, data) {
+                fs.readFile("/note", 'utf8', function(err, data) {
                     if(err) {
                         console.log("Document not found/ could not be read. New file will be created upon save.");
                         noteDiv.textContent = nString;
@@ -36,17 +52,20 @@
                         console.log("Document loaded.");
                     }
                 });
-
-                var intervalID = window.setInterval(autoSave, 3000); //save every 3 seconds
-
-                function autoSave() {
-                    newNString = document.getElementById("note").textContent;
-                    fs.writeFile("/note.txt", newNString, function (err) {
-                        if (err) throw err;
-                        else console.log("Document auto-saved: " + newNString);
-                    });
-                }
             });
+
+            hotkeys("ctrl+x", function() {
+                saveNote();
+                alert("Note saved!");
+            });
+
+            function saveNote() {
+                newNString = document.getElementById("note").textContent;
+                fs.writeFile("/note", newNString, function (err) {
+                    if (err) throw err;
+                    else console.log("Document saved: " + newNString);
+                });
+            }
         </script>
     </body>
 </html>
