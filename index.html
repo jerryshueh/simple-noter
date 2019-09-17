@@ -31,7 +31,7 @@
             var noteDiv = document.createElement("div");
             noteDiv.setAttribute("contenteditable", true);
             noteDiv.id = "note";
-            noteDiv.className = "sticky"
+            noteDiv.className = "sticky";
             contentDiv.appendChild(noteDiv);
 
             hotkeys.filter = function(event) {
@@ -44,7 +44,8 @@
                 fs.readFile("/note", 'utf8', function(err, data) {
                     if(err) {
                         console.log("Document not found/ could not be read. New file will be created upon save.");
-                        noteDiv.textContent = nString;
+
+                        noteDiv.setAttribute("aria-placeholder", nString);
                     }
 
                     if(data) {
