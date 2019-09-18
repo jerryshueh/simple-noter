@@ -11,7 +11,7 @@
     <body>
         <!-- This is a comment -->
         <h1>simple-note</h1>
-        <p><sub>To make notes, just type in the space below. Press CTRL + X to save!</sub></p>
+        <p><sub>To make notes, just type in the space below. Press Ctrl + x to save, or Ctrl + s to save on disk!</sub></p>
         <p><sub>
             Font is Indie Flower, taken from Google Fonts.
             <br>
@@ -22,6 +22,7 @@
 
         <script src="https://unpkg.com/filer/dist/filer.min.js"></script>
         <script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
+        <script src="https://unpkg.com/file-saver@2.0.2/src/FileSaver.js"></script>
 
         <script>
             const fs = new Filer.FileSystem();
@@ -55,17 +56,39 @@
                 });
             });
 
-            hotkeys("ctrl+x", function() {
-                saveNote();
-                alert("Note saved!");
+            hotkeys("ctrl+x,ctrl+s", function(event, handler) {
+                event.preventDefault();
+                const newNString = document.getElementById("note").textContent;
+
+                switch (handler.key) {
+                    case "ctrl+x":
+                        saveNote(newNString);
+                        alert("Note saved!");
+                        break;
+                  
+                    case "ctrl+s":
+                      saveOnDisk(newNString)
+                }
             });
 
-            function saveNote() {
-                newNString = document.getElementById("note").textContent;
-                fs.writeFile("/note", newNString, function (err) {
+            function saveNote(content) {
+                fs.writeFile("/note", content, function (err) {
                     if (err) throw err;
-                    else console.log("Document saved: " + newNString);
+                    else console.log("Document saved: " + content);
                 });
+            }
+            function saveOnDisk(content) {
+                if (!content) alert("Your note is empty. Type something before saving it on disk!");
+
+                else {
+                    const fileName = prompt("Please enter the name of the file where you want to store your note", "simple-note.txt");
+                
+                  // If fileName is empty or the user clicks on "cancel", nothing will be done
+                  if (fileName) {
+                      const file = new File([content], fileName, {type: "text/plain;charset=utf-8"});
+                      saveAs(file);
+                  }
+                }
             }
         </script>
     </body>
