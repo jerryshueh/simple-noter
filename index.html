@@ -63,7 +63,6 @@
                 switch (handler.key) {
                     case "ctrl+x":
                         saveNote(newNString);
-                        alert("Note saved!");
                         break;
                   
                     case "ctrl+s":
@@ -73,8 +72,13 @@
 
             function saveNote(content) {
                 fs.writeFile("/note", content, function (err) {
-                    if (err) throw err;
-                    else console.log("Document saved: " + content);
+                    if (err) {
+                        return alert("Unable to save the note! " + err);
+                    }
+                    else {
+                        console.log("Document saved: " + content);
+                        alert("Note saved!");
+                    }
                 });
             }
             function saveOnDisk(content) {
