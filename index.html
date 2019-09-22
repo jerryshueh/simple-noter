@@ -37,6 +37,7 @@
             const fs = new Filer.FileSystem();
             var nString = "Nothing is saved yet, so just type here!"; //init
             var autosaveMinutes = 1;
+            var lastSaveTime = Date(Date.now);
 
             var contentDiv = document.getElementById("content");
             var autoSaveMessageSub = document.getElementById("autosaveMessageSub");
@@ -65,7 +66,6 @@
                         noteDiv.textContent = data;
                         console.log("Document loaded.");
 
-                        
                         setInterval(autoSaveNote, autosaveMinutes * 1000);
                         console.log("Autosave started.");
                     }
@@ -91,12 +91,12 @@
 
                 if (autosaveEnabledCheckbox.checked) {
                     // Setup user autosave message
-                    autoSaveMessageSub.innerText = "This page automatically saves your note every " + autosaveMinutes + (autosaveMinutes > 1 ? " minutes" : " minute") + ".";
+                    autoSaveMessageSub.innerText = "This page automatically saves your note every " + autosaveMinutes + (autosaveMinutes > 1 ? " minutes" : " minute") + ".\nLast save at: " + lastSaveTime;
                     saveNote(newNString, true);
                 }
                 else {
                     // Setup user autosave message
-                    autoSaveMessageSub.innerText = "This page does NOT automatically saves your note (auto save is disabled).";
+                    autoSaveMessageSub.innerText = "This page does NOT automatically saves your note (auto save is disabled).\nLast save at: " + lastSaveTime;
                 }
             }
 
@@ -105,8 +105,10 @@
                     if (err) {
                         return alert("Unable to save the note: " + err);
                     }
-                    else { 
+                    else {
                         console.log("Document saved: " + content);
+                        
+                        lastSaveTime = Date(Date.now);
                         if (!hideAlert) alert("Note saved!");
                     }
                 });
@@ -122,6 +124,7 @@
                   if (fileName) {
                       const file = new File([content], fileName, {type: "text/plain;charset=utf-8"});
                       saveAs(file);
+                      lastSaveTime = Date(Date.now);
                   }
                 }
             }
