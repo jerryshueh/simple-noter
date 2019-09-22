@@ -17,7 +17,16 @@
             <br>
             Sticky note CSS is taken from Github user <a href="https://gist.github.com/SimonPadbury">SimonPadbury's</a> <a href="https://gist.github.com/SimonPadbury/fc55c054c0480550c3be592111778763">gist.</a>
         </sub></p>
+
+        <p><sub id="autosaveMessageSub"></sub></p>
+        
+        <label for="autosaveEnabledCheckbox">Enable Auto Save</label>
+        <input type="checkbox" id="autosaveEnabledCheckbox" name="autosaveEnabledCheckbox"/>
+        
         <br>
+        <br>
+        <br>
+
         <div id="content"></div>
 
         <script src="https://unpkg.com/filer/dist/filer.min.js"></script>
@@ -27,8 +36,11 @@
         <script>
             const fs = new Filer.FileSystem();
             var nString = "Nothing is saved yet, so just type here!"; //init
+            var autosaveMinutes = 1;
 
             var contentDiv = document.getElementById("content");
+            var autoSaveMessageSub = document.getElementById("autosaveMessageSub");
+            var autosaveEnabledCheckbox = document.getElementById("autosaveEnabledCheckbox");
             var noteDiv = document.createElement("div");
             noteDiv.setAttribute("contenteditable", true);
             noteDiv.id = "note";
@@ -52,6 +64,9 @@
                     if(data) {
                         noteDiv.textContent = data;
                         console.log("Document loaded.");
+
+                        setInterval(autoSaveNote, autosaveMinutes * 1000);
+                        console.log("Autosave started.");
                     }
                 });
             });
@@ -69,6 +84,20 @@
                       saveOnDisk(newNString)
                 }
             });
+
+            function autoSaveNote() {
+                const newNString = document.getElementById("note").textContent;
+
+                if (autosaveEnabledCheckbox.checked) {
+                    // Setup user autosave message
+                    autoSaveMessageSub.innerText = "This page automatically saves your note every " + autosaveMinutes + (autosaveMinutes > 1 ? " minutes" : " minute") + ".";
+                    saveNote(newNString);
+                }
+                else {
+                    // Setup user autosave message
+                    autoSaveMessageSub.innerText = "This page does NOT automatically saves your note (auto save is disabled).";
+                }
+            }
 
             function saveNote(content) {
                 fs.writeFile("/note", content, function (err) {
