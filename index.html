@@ -65,6 +65,7 @@
                         noteDiv.textContent = data;
                         console.log("Document loaded.");
 
+                        
                         setInterval(autoSaveNote, autosaveMinutes * 1000);
                         console.log("Autosave started.");
                     }
@@ -91,7 +92,7 @@
                 if (autosaveEnabledCheckbox.checked) {
                     // Setup user autosave message
                     autoSaveMessageSub.innerText = "This page automatically saves your note every " + autosaveMinutes + (autosaveMinutes > 1 ? " minutes" : " minute") + ".";
-                    saveNote(newNString);
+                    saveNote(newNString, true);
                 }
                 else {
                     // Setup user autosave message
@@ -99,14 +100,14 @@
                 }
             }
 
-            function saveNote(content) {
+            function saveNote(content, hideAlert) {
                 fs.writeFile("/note", content, function (err) {
                     if (err) {
                         return alert("Unable to save the note: " + err);
                     }
                     else { 
                         console.log("Document saved: " + content);
-                        alert("Note saved!");
+                        if (!hideAlert) alert("Note saved!");
                     }
                 });
             }
