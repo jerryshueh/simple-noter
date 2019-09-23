@@ -17,7 +17,16 @@
             <br>
             Sticky note CSS is taken from Github user <a href="https://gist.github.com/SimonPadbury">SimonPadbury's</a> <a href="https://gist.github.com/SimonPadbury/fc55c054c0480550c3be592111778763">gist.</a>
         </sub></p>
+
+        <p><sub id="autosaveMessageSub"></sub></p>
+        
+        <label for="autosaveEnabledCheckbox">Enable Auto Save</label>
+        <input type="checkbox" id="autosaveEnabledCheckbox" name="autosaveEnabledCheckbox"/>
+        
         <br>
+        <br>
+        <br>
+
         <div id="content"></div>
 
         <script src="https://unpkg.com/filer/dist/filer.min.js"></script>
@@ -27,8 +36,12 @@
         <script>
             const fs = new Filer.FileSystem();
             var nString = "Nothing is saved yet, so just type here!"; //init
+            var autosaveMinutes = 1;
+            var lastSaveTime = Date(Date.now);
 
             var contentDiv = document.getElementById("content");
+            var autoSaveMessageSub = document.getElementById("autosaveMessageSub");
+            var autosaveEnabledCheckbox = document.getElementById("autosaveEnabledCheckbox");
             var noteDiv = document.createElement("div");
             noteDiv.setAttribute("contenteditable", true);
             noteDiv.id = "note";
@@ -52,6 +65,9 @@
                     if(data) {
                         noteDiv.textContent = data;
                         console.log("Document loaded.");
+
+                        setInterval(autoSaveNote, autosaveMinutes * 1000);
+                        console.log("Autosave started.");
                     }
                 });
             });
@@ -70,14 +86,30 @@
                 }
             });
 
-            function saveNote(content) {
+            function autoSaveNote() {
+                const newNString = document.getElementById("note").textContent;
+
+                if (autosaveEnabledCheckbox.checked) {
+                    // Setup user autosave message
+                    autoSaveMessageSub.innerText = "This page automatically saves your note every " + autosaveMinutes + (autosaveMinutes > 1 ? " minutes" : " minute") + ".\nLast save at: " + lastSaveTime;
+                    saveNote(newNString, true);
+                }
+                else {
+                    // Setup user autosave message
+                    autoSaveMessageSub.innerText = "This page does NOT automatically saves your note (auto save is disabled).\nLast save at: " + lastSaveTime;
+                }
+            }
+
+            function saveNote(content, hideAlert) {
                 fs.writeFile("/note", content, function (err) {
                     if (err) {
                         return alert("Unable to save the note: " + err);
                     }
-                    else { 
+                    else {
                         console.log("Document saved: " + content);
-                        alert("Note saved!");
+                        
+                        lastSaveTime = Date(Date.now);
+                        if (!hideAlert) alert("Note saved!");
                     }
                 });
             }
@@ -92,6 +124,7 @@
                   if (fileName) {
                       const file = new File([content], fileName, {type: "text/plain;charset=utf-8"});
                       saveAs(file);
+                      lastSaveTime = Date(Date.now);
                   }
                 }
             }
