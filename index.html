@@ -28,6 +28,10 @@
         <br>
 
         <div id="content"></div>
+        <br><br><br><br>
+        <br><br><br><br>
+        <br><br><br>
+        <button onclick="cleartheNotes(content)" type="button">Clear the Notes</button>
 
         <script src="https://unpkg.com/filer/dist/filer.min.js"></script>
         <script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
@@ -127,6 +131,11 @@
                       lastSaveTime = Date(Date.now);
                   }
                 }
+            }
+
+            function cleartheNotes(content) {
+                document.getElementById("note").textContent = ""; 
+                alert("Note cleared!");
             }
         </script>
     </body>
